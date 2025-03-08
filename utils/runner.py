@@ -35,12 +35,12 @@ def run_puzzle(day: str, solve_func):
 
     if os.path.exists(paths["test_answer"]):
         with open(paths["test_answer"], "r", encoding="utf-8") as file:
-            expected_answer = int(file.read().strip())
+            expected_answer = file.read().strip()
     else:
         raise FileNotFoundError(f"No test-answer file found for day {day}.")
 
     # Run with test input
-    test_result = solve_func(test_input)
+    test_result = str(solve_func(test_input))
 
     print(f"Test result: {test_result} (Expected: {expected_answer})")
 
