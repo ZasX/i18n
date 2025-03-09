@@ -5,7 +5,6 @@ from dateutil import parser
 from utils.runner import run_puzzle
 
 def solve(puzzle_input: list[str]):
-    # TODO: Your logic here
     epochs = []
     for line in puzzle_input:
         DT = parser.parse(line)
