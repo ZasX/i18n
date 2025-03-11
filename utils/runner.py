@@ -19,7 +19,7 @@ def get_input_paths(day: str) -> dict[str, str]:
 def load_input(filepath: str) -> list[str]:
     """Reads input file into a list of lines."""
     with open(filepath, "r", encoding="utf-8") as file:
-        return [line.strip() for line in file.readlines()]
+        return [line[:-1] for line in file.readlines()]
 
 def run_puzzle(day: str, solve_func):
     """
