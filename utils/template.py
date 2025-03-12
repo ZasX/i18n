@@ -1,7 +1,7 @@
 import os
 from utils.runner import run_puzzle
 
-def solve(puzzle_input: list[str]) -> int:
+def solve(puzzle_input: str) -> int:
     # TODO: Your logic here
     return 0
 

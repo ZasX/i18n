@@ -16,9 +16,10 @@ def get_input_paths(day: str) -> dict[str, str]:
         "test_answer": os.path.join(input_dir, "test-answer"),
     }
 
-def load_input(filepath: str) -> list[str]:
+def load_input(filepath: str) -> str:
     """Reads input file into a list of lines."""
     with open(filepath, "r", encoding="utf-8") as file:
+        return file.read()
         return [line[:-1] for line in file.readlines()]
 
 def run_puzzle(day: str, solve_func):

@@ -1,10 +1,10 @@
 import os
 from utils.runner import run_puzzle
 
-def solve(puzzle_input: list[str]) -> int:
+def solve(puzzle_input: str) -> int:
     pos = 0
     count = 0
-    for line in puzzle_input:
+    for line in [line.strip('\n') for line in puzzle_input.splitlines()]:
         if line[pos] == "💩":
             count += 1
         pos = (pos+2)%len(line)

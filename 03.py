@@ -1,9 +1,9 @@
 import os
 from utils.runner import run_puzzle
 
-def solve(puzzle_input: list[str]) -> int:
+def solve(puzzle_input: str) -> int:
     valid = 0
-    for line in puzzle_input:
+    for line in [line.strip() for line in puzzle_input.splitlines()]:
         if len(line) < 4 or len(line) > 12: continue
         if not any(c.isnumeric() for c in line): continue
         if not any(c.isupper() for c in line): continue

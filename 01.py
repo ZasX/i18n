@@ -1,12 +1,12 @@
 import os
 from utils.runner import run_puzzle
 
-def solve(puzzle_input: list[str]) -> int:
+def solve(puzzle_input: str) -> int:
     max_bytes = 160
     max_chars = 140
     cost_sms_tweet_both = (11,7,13)
     total_cost = 0
-    for line in puzzle_input:
+    for line in [line.strip() for line in puzzle_input.splitlines()]:
         byte_length = len(line.encode('utf-8'))
         num_of_chars = len(line)
         line_cost = 0
