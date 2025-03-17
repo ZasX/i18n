@@ -1,82 +1,47 @@
-from functools import lru_cache
-from itertools import product
 import os
+import time
 import unicodedata
-from utils.runner import run_puzzle
 import bcrypt
+from collections import Counter
+from itertools import product
+from multiprocessing.dummy import Pool
+from utils.runner import run_puzzle
 
-@lru_cache(None)
-def forms(s: str):
-    a = []
-    s = unicodedata.normalize("NFC", s)
-    for l in s:
-        la = []
-        la.append(l.encode())
-        la.append(unicodedata.normalize("NFD", l).encode())
-        a.append(set(la))
-    return set([b''.join(combination) for combination in product(*a)])
+def generate_variants(text: str) -> set[bytes]:
+    """Generate all possible Unicode normalization variants of a string."""
+    normalized_text = unicodedata.normalize("NFC", text)
+    variants = []
+    
+    for char in normalized_text:
+        char_variants = {char.encode(), unicodedata.normalize("NFD", char).encode()}
+        variants.append(char_variants)
+    
+    return {b"".join(combination) for combination in product(*variants)}
+
+def verify_attempt(attempt_data: tuple[str, int], stored_passwords: dict[str, bytes]) -> int:
+    """Check if an attempt matches any stored password and return the count if it does."""
+    attempt, count = attempt_data
+    user, entered_password = attempt.split()
+    
+    for variant in generate_variants(entered_password):
+        if bcrypt.checkpw(variant, stored_passwords[user]):
+            return count
+    return 0
 
 def solve(puzzle_input: str) -> int:
-
-    # I'm leaving my trial and error code in, because it's quite a lot today:
-
-    # pwattempt  = ".pM?XÑ0i7ÈÌ"
-    # pworiginal = ".pM?XÑ0i7ÈÌ"
-
-    # for pw in forms(pwattempt):
-    #     if pw == pworiginal.encode():
-    #         ...
-
-    # pwaf = forms(pwattempt)
-    # pwof = forms(pworiginal)
-    # for pw1 in pwaf:
-    #     for pw2 in pwof:
-    #         # print(pw.encode())
-    #         # print(pw2.encode())
-    #         # print('---')
-    #         if pw1 == pw2:
-    #             print(pw1)
-    #             print(pw2)
-    #             print('---')
-    #             print(pwattempt.encode())
-    #             print(pworiginal.encode())
-    #             print('-----')
-    #             ...
-
-    # print(unicodedata.normalize("NFC", pwattempt) == unicodedata.normalize("NFC", pworiginal))
-    # print(unicodedata.normalize("NFKC", pwattempt) == unicodedata.normalize("NFKC", pworiginal))
-    # print(unicodedata.normalize("NFD", pwattempt) == unicodedata.normalize("NFD", pworiginal))
-    # print(unicodedata.normalize("NFKD", pwattempt) == unicodedata.normalize("NFKD", pworiginal))
-    # unicodedata.normalize("NFKC", pwattempt)
-    # unicodedata.normalize("NFD", pwattempt)
-    # unicodedata.normalize("NFKD", pwattempt)
-
-    # pw1u = unidecode(pwattempt)
-    # pw2u = unidecode(pworiginal)
-
-    # pw1b = bcrypt.checkpw(pwattempt.encode(), "$2b$07$0EBrxS4iHy/aHAhqbX/ao.n7305WlMoEpHd42aGKsG21wlktUQtNu".encode())
-    # pw2b = bcrypt.checkpw(pworiginal.encode(), "$2b$07$0EBrxS4iHy/aHAhqbX/ao.n7305WlMoEpHd42aGKsG21wlktUQtNu".encode())
-
-    # test = "test"
-    # test2 = "test2"
-    # salt = bcrypt.gensalt()
-    # p1 = bcrypt.hashpw(test.encode(), salt)
-    # p2 = bcrypt.hashpw(test2.encode(), salt)
+    """Solve the puzzle by verifying password attempts."""
+    password_data, attempt_list = puzzle_input.split('\n\n')
+    passwords = dict(line.split() for line in password_data.splitlines())
+    stored_passwords = {user: hashed.encode() for user, hashed in passwords.items()}
+    attempts = Counter(attempt_list.splitlines()).items()
     
-    passwords, attempts = puzzle_input.split('\n\n')
-    pwdsoriginal: dict[str, bytes] = {}
-    for password in passwords.splitlines():
-        splat = password.split()
-        pwdsoriginal[splat[0]] = splat[1].encode()
-    count = 0
-    for attempt in attempts.splitlines():
-        splat = attempt.split()
-        for pwinput in forms(splat[1]):
-            if bcrypt.checkpw(pwinput, pwdsoriginal[splat[0]]):
-                count += 1
-                break
-    return count
+    with Pool(32) as pool:
+        results = pool.starmap(verify_attempt, [(attempt, stored_passwords) for attempt in attempts])
+    
+    return sum(results)
 
 if __name__ == "__main__":
-    day = os.path.splitext(os.path.basename(__file__))[0]
-    run_puzzle(day, solve)
+    script_name = os.path.splitext(os.path.basename(__file__))[0]
+    start_time = time.time()
+    run_puzzle(script_name, solve)
+    print(f"Execution time: {time.time() - start_time:.4f} seconds")
