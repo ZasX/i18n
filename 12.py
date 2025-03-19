@@ -1,3 +1,4 @@
+import unicodedata
 from utils.runner import run_puzzle
 import os
 from functools import cmp_to_key
@@ -5,15 +6,16 @@ import locale
 import re
 
 def solve(puzzle_input: str) -> int:
-    data = {line.split(': ')[0]:int(line.split(': ')[1]) for line in puzzle_input.splitlines()}
+    data = {unicodedata.normalize('NFKD', line.split(': ')[0].replace(',', '~')):int(line.split(': ')[1]) for line in puzzle_input.splitlines()}
+    bla = {e:[ord(x) for x in e] for e in data.keys()}
 
-    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    locale.setlocale(locale.LC_COLLATE, 'en_US.UTF-8')
     o1 = sorted(data.keys(), key=cmp_to_key(locale.strcoll))
 
-    locale.setlocale(locale.LC_ALL, 'se_NO.UTF-8')
+    locale.setlocale(locale.LC_COLLATE, 'sv_SE.UTF-8')
     o2 = sorted(data.keys(), key=cmp_to_key(locale.strcoll))
 
-    locale.setlocale(locale.LC_ALL, 'nl_NL.UTF-8')
+    locale.setlocale(locale.LC_COLLATE, 'nl_NL.UTF-8')
     l3 = [re.sub(r"^[^A-Z]*([A-Z].*)", r"\1", name) for name in data.keys()]
     o3 = sorted(l3, key=cmp_to_key(locale.strcoll))
 
