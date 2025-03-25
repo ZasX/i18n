@@ -16,13 +16,13 @@ def get_input_paths(day: str) -> dict[str, str]:
         "test_answer": os.path.join(input_dir, "test-answer"),
     }
 
-def load_input(filepath: str) -> str:
+def load_input(filepath: str, encoding: str) -> str:
     """Reads input file into a list of lines."""
-    with open(filepath, "r", encoding="utf-8") as file:
+    with open(filepath, "r", encoding=encoding) as file:
         return file.read()
         return [line[:-1] for line in file.readlines()]
 
-def run_puzzle(day: str, solve_func):
+def run_puzzle(day: str, solve_func, encoding="UTF-8"):
     """
     Runs the puzzle solution for the given day.
 
@@ -32,7 +32,7 @@ def run_puzzle(day: str, solve_func):
     """
     paths = get_input_paths(day)
 
-    test_input = load_input(paths["test_input"])
+    test_input = load_input(paths["test_input"], encoding)
 
     if os.path.exists(paths["test_answer"]):
         with open(paths["test_answer"], "r", encoding="utf-8") as file:
@@ -51,7 +51,7 @@ def run_puzzle(day: str, solve_func):
 
     print("✅ Test passed! Running real input...")
 
-    real_input = load_input(paths["real_input"])
+    real_input = load_input(paths["real_input"], encoding)
     real_result = solve_func(real_input)
 
     print(f"🎉 Final result for day {day}: {real_result}")
